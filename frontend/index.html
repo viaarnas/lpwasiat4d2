@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>CRUD Users</title>
+
+  <style>
+  </style>
+</head>
+
+<body>
+  <h1>Antrian IN/OUT</h1>
+  
+  Nama : <input type="text" id="nama" placeholder="Masukkan nama"><br>
+  Tujuan : <select id="purp">
+    <option value="pilih">Pilih</option>
+    <option value="Sebat">Sebat</option>
+    <option value="Ambil Makan">Ambil Makan</option>
+    <option value="Toilet">Toilet</option>
+  </select><br>
+
+  <button type="button" onclick="addQ()" id="submit">Masuk Antrian</button><br><br>
+
+  Antrian :
+  <ul id="listNama"></ul>
+
+  <script>
+    const nama = document.getElementById("nama");
+    const purpose = document.getElementById("purp");
+    const submit = document.getElementById("submit");
+    const list = document.getElementById("listNama");
+    const API_URL = "http://localhost:3000/users";
+
+    async function showList() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+
+        list.innerHTML = "";
+      
+        data.forEach(user => {
+          const li = document.createElement("li");
+          li.textContent = user.nama + ", " + user.purpose;
+          list.appendChild(li);
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    async function addQ() {
+      if (!nama.value) return alert("Isi nama terlebih dahulu!");
+      if (purpose.value === "pilih") return alert("Isi tujuan terlebih dahulu!");
+      if (!nama.value && purpose.value === "pilih") return alert("Isi nama dan tujuan terlebih dahulu!");
+
+      try {
+        await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ 
+            nama: nama.value,
+            purpose: purpose.value
+          })
+        });
+
+        nama.value = "";
+        purpose.value = "pilih";
+        showList();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    showList();
+  </script>
+
+</body>
+</html>
